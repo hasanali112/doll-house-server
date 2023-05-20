@@ -41,7 +41,14 @@ async function run() {
         res.send(result);
     })
 
-    //receive data from client
+    //receive from mongodb
+    app.get('/alltoys', async (req, res)=>{
+        const cursor = createToyCollection.find();
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+
+    //receive review data from client
     app.post('/reviews', async (req, res)=>{
         const reviewCollection = req.body;
         console.log(reviewCollection)
