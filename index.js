@@ -55,6 +55,39 @@ async function run() {
       res.send(result);
     })
 
+    //my toys
+    app.get('/mytoy/:email', async (req, res)=>{
+       const result = await createToyCollection.find({email: req.params.email}).toArray();
+       res.send(result)
+    })
+
+    //update coffee
+    app.put('/update/:id', async (req, res)=>{
+       const id = req.params.id;
+       const filter ={_id: new ObjectId(id)}
+       const options = { upsert: true };
+       const updateToy = req.body;
+       const update ={
+        $set:{
+          photoUrl:updateToy.photoUrl,
+          price:updateToy.price,
+          rating:updateToy.rating,
+          quantity:updateToy.quantity,
+          description:updateToy.description
+        }
+       }
+       const result = await createToyCollection.updateOne(filter, update, options)
+       res.send(result)
+    })
+
+
+    app.delete('/toy/:id', async (req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await createToyCollection.deleteOne(query)
+      res.send(result)
+    })
+
     //receive review data from client
     app.post('/reviews', async (req, res)=>{
         const reviewCollection = req.body;
