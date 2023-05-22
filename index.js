@@ -9,6 +9,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
+
 const uri = `mongodb+srv://${process.env.DB_username}:${process.env.DB_password}@cluster1.4gey7ap.mongodb.net/?retryWrites=true&w=majority`;
 console.log(uri);
 
@@ -20,6 +22,8 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+
+
 
 async function run() {
   try {
@@ -63,6 +67,26 @@ async function run() {
       res.send(result);
     });
 
+
+    //search  
+
+    const indexKeys = {toyName: 1, categories: 1}
+    const indexOptions ={name: "searchToyNameCategories"}
+    const result = await createToyCollection.createIndex(indexKeys, indexOptions)
+
+    app.get('/searchbytoy/:text', async (req, res)=>{
+       const searchText = req.params.text;
+       const result = await createToyCollection.find({
+        $or:[
+          {toyName: {$regex:searchText , $options: 'i'}},
+          {categories: {$regex:searchText , $options: 'i'}},
+        ]
+       }).toArray()
+       res.send(result)
+    })
+  
+     
+
     //update coffee
     app.put("/update/:id", async (req, res) => {
       const id = req.params.id;
@@ -72,7 +96,7 @@ async function run() {
       const update = {
         $set: {
           photoUrl: updateToy.photoUrl,
-          price: updateToy.price,
+          price:  updateToy.price,
           rating: updateToy.rating,
           quantity: updateToy.quantity,
           description: updateToy.description,
